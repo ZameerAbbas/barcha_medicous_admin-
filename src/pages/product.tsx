@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+
 // import { useDispatch, useSelector } from "react-redux";
 // import type { RootState, AppDispatch } from "../app/store";
 // import { startProductsRealtime, addProduct, updateProduct, deleteProduct } from "../features/products/productsSlice";
