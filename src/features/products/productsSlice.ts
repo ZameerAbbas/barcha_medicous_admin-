@@ -1,8 +1,13 @@
-// src/features/products/productsSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { db } from "../../firebase";
-import { collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import {
+  ref,
+  push,
+  update,
+  remove,
+  onValue
+} from "firebase/database";
 
 export interface Product {
   id?: string;
@@ -25,46 +30,58 @@ const initialState: ProductState = {
 export const startProductsRealtime = createAsyncThunk(
   "products/startRealtime",
   async (_, { dispatch }) => {
-    const productsRef = collection(db, "products");
+    const productsRef = ref(db, "products");
 
-    const unsubscribe = onSnapshot(productsRef, (snapshot) => {
-      const products: Product[] = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Product[];
+    const unsubscribe = onValue(productsRef, (snapshot) => {
+      const data = snapshot.val();
+      const products: Product[] = data
+        ? Object.keys(data).map(id => ({
+            id,
+            ...data[id]
+          }))
+        : [];
+
       dispatch(setProducts(products));
     });
 
-    return unsubscribe; // call unsubscribe() on component unmount
+    return unsubscribe; 
   }
 );
 
-// ---------------- CRUD Actions ----------------
+// ---------------- Add Product ----------------
 export const addProduct = createAsyncThunk(
   "products/add",
   async (product: Product) => {
-    const docRef = await addDoc(collection(db, "products"), product);
-    return { id: docRef.id, ...product };
+    const productsRef = ref(db, "products");
+    const newRef = await push(productsRef, product);
+    return { id: newRef.key!, ...product };
   }
 );
 
+// ---------------- Update Product ----------------
 export const updateProduct = createAsyncThunk(
   "products/update",
   async (product: Product) => {
     if (!product.id) throw new Error("Product ID missing");
-    await updateDoc(doc(db, "products", product.id), {
+
+    const productRef = ref(db, `products/${product.id}`);
+
+    await update(productRef, {
       name: product.name,
       price: product.price,
-      category: product.category
+      category: product.category,
     });
+
     return product;
   }
 );
 
+// ---------------- Delete Product ----------------
 export const deleteProduct = createAsyncThunk(
   "products/delete",
   async (id: string) => {
-    await deleteDoc(doc(db, "products", id));
+    const productRef = ref(db, `products/${id}`);
+    await remove(productRef);
     return id;
   }
 );

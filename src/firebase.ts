@@ -1,18 +1,27 @@
-// src/firebase.ts
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+// Firebase imports
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getDatabase } from "firebase/database";
+import { getStorage } from "firebase/storage";
 
+// Your Firebase config
 const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_DOMAIN',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_BUCKET',
-  messagingSenderId: 'YOUR_SENDER_ID',
-  appId: 'YOUR_APP_ID',
+  apiKey: "AIzaSyDxgqi9beqrM_L-LFVWsG1Njq0QBQ5C7I4",
+  authDomain: "barcha-medicous.firebaseapp.com",
+  databaseURL: "https://barcha-medicous-default-rtdb.firebaseio.com",
+  projectId: "barcha-medicous",
+  storageBucket: "barcha-medicous.firebasestorage.app",
+  messagingSenderId: "351174899452",
+  appId: "1:351174899452:web:7198e4509710b7fec20979",
+  measurementId: "G-77LNJWGRTX",
 };
 
+// Initialize
 const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+// Firebase services
 export const auth = getAuth(app);
+export const db = getDatabase(app);
+export const storage = getStorage(app);
+
+export default app;
