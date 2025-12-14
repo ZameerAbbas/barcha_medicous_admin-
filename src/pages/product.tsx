@@ -21,26 +21,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "../components/ui/textarea";
 
 
+
 interface ProductFormData {
   id?: string;
   name: string;
-  price: string; // Use string for input, convert to number on submit
+  price: string; 
   categoryId: string;
   description: string;
   productImage: string;
-  mg: string; // Use string for input, convert to number on submit
+  mg: string; 
 }
 
-// --- Icons (Using placeholders for Tailwind-friendly display) ---
+
 const AddIcon = () => <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>;
 const EditIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>;
 const DeleteIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>;
 const CloseIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"></path></svg>;
 
 
-// =======================================================
-//                   PRODUCT FORM MODAL COMPONENT
-// =======================================================
+
 interface ProductFormData {
   id?: string;
   name: string;
@@ -58,6 +57,9 @@ interface ProductFormProps {
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, onClose }) => {
+
+
+
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState<ProductFormData>({
     name: productToEdit?.name || "",
@@ -70,16 +72,37 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    // Use functional update to ensure state consistency
     setFormData(prevData => ({
       ...prevData,
       [name as keyof ProductFormData]: value
     }));
   };
 
-  // Custom handler for Shadcn Select component
+
+  console.log("Current formData:", formData);
+  console.log("productToEdit:", productToEdit);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData(prev => ({
+        ...prev,
+        productImage: reader.result as string,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+
+
+
+
+
   const handleSelectChange = (value: string) => {
-    // Must use the previous pattern here because Select is not an input and doesn't fire a React.ChangeEvent
+
     setFormData(prevData => ({ ...prevData, categoryId: value }));
   };
 
@@ -105,11 +128,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
   };
 
   return (
-    // Modal Backdrop
+
     <div className="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-7 max-h-[90vh] overflow-y-auto transform transition-all">
 
-        {/* Header */}
+
         <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
           <h3 className="text-2xl font-extrabold text-gray-800">
             {productToEdit ? "Edit Product" : "Add New Product"}
@@ -121,10 +144,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
 
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* Row 1: Name and Category */}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-            {/* 1. Product Name */}
+
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="name">Product Name *</Label>
               <Input
@@ -137,7 +160,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
               />
             </div>
 
-            {/* 2. Category Dropdown (SELECT Component) */}
+
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="categoryId">Category *</Label>
               <Select onValueChange={handleSelectChange} value={formData.categoryId} required>
@@ -155,10 +178,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
             </div>
           </div>
 
-          {/* Row 2: Price and MG */}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-            {/* 3. Price */}
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="price">Price  *</Label>
               <Input
@@ -171,7 +193,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
               />
             </div>
 
-            {/* 4. Dosage (mg) */}
+
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="mg">Dosage (mg) *</Label>
               <Input
@@ -185,7 +207,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
             </div>
           </div>
 
-          {/* Row 3: Description (Textarea) */}
+
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="description">Description *</Label>
             <Textarea
@@ -198,18 +220,28 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
             />
           </div>
 
-          {/* Row 4: Image URL */}
+
+
+          {formData.productImage && (
+            <img
+              src={formData.productImage}
+              alt="Product Preview"
+              className="w-32 h-32 object-cover rounded-lg border"
+            />
+          )}
+
+
           <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="productImage">Product Image URL</Label>
+            <Label htmlFor="productImage">Product Image</Label>
             <Input
               id="productImage"
-              name="productImage"
-              type="url"
-              value={formData.productImage}
-              onChange={handleChange}
-
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
             />
           </div>
+
+
 
 
           <div className="flex justify-end pt-5 border-t border-gray-200 mt-6">

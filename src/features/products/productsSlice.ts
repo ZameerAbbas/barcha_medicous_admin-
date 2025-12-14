@@ -31,7 +31,6 @@ const initialState: ProductState = {
   loading: true,
 };
 
-// ---------------- Realtime Fetch ----------------
 export const startProductsRealtime = createAsyncThunk(
   "products/startRealtime",
   async (_, { dispatch }) => {
@@ -53,14 +52,11 @@ export const startProductsRealtime = createAsyncThunk(
   }
 );
 
-// ---------------- Add Product ----------------
-// The product argument now expects all the new fields
 export const addProduct = createAsyncThunk(
   "products/add",
   async (product: Product) => {
     const productsRef = ref(db, "products");
-    
-    // Ensure all data except the temporary 'id' is pushed
+  
     const { id, ...dataToPush } = product; 
 
     const newRef = await push(productsRef, dataToPush);
@@ -68,8 +64,6 @@ export const addProduct = createAsyncThunk(
   }
 );
 
-// ---------------- Update Product ----------------
-// The product argument now expects all the new fields
 export const updateProduct = createAsyncThunk(
   "products/update",
   async (product: Product) => {
@@ -77,7 +71,7 @@ export const updateProduct = createAsyncThunk(
 
     const productRef = ref(db, `products/${product.id}`);
 
-    // Destructure the product to explicitly specify fields for the update payload
+  
     const { name, price, categoryId, description, productImage, mg } = product;
 
     await update(productRef, {
@@ -93,7 +87,7 @@ export const updateProduct = createAsyncThunk(
   }
 );
 
-// ---------------- Delete Product ----------------
+
 export const deleteProduct = createAsyncThunk(
   "products/delete",
   async (id: string) => {
@@ -103,7 +97,7 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
-// ---------------- Slice ----------------
+
 const productsSlice = createSlice({
   name: "products",
   initialState,
