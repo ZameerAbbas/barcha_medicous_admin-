@@ -2,13 +2,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import productsReducer from '../features/products/productsSlice';
 // import ordersReducer from '../features/orders/ordersSlice';
-// import categoriesReducer from '../features/categories/categoriesSlice';
+import categoriesReducer from '../features/products/categoriesSlice';
+import addressSlice from '../features/adress/addressSlice';
 
 export const store = configureStore({
   reducer: {
     products: productsReducer,
-    // orders: ordersReducer,
-    // categories: categoriesReducer,
+    addresses: addressSlice,
+    categories: categoriesReducer,
   },
 });
 

@@ -4,6 +4,9 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProductsPage from "./pages/product";
+import Categories from "./pages/Categories";
+import Address from "./pages/addresses";
+import Order from "./pages/order";
 
 export default function App() {
   return (
@@ -35,6 +38,36 @@ export default function App() {
           <ProtectedRoute>
             <DashboardLayout>
               <ProductsPage />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Order />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/categories"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Categories />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/addresses"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Address />
             </DashboardLayout>
           </ProtectedRoute>
         }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { db } from "../../firebase";
@@ -9,11 +10,15 @@ import {
   onValue
 } from "firebase/database";
 
+
 export interface Product {
   id?: string;
   name: string;
   price: number;
-  category: string;
+  categoryId: string; 
+  description: string;
+  productImage: string;
+  mg: number;
 }
 
 interface ProductState {
@@ -44,21 +49,27 @@ export const startProductsRealtime = createAsyncThunk(
       dispatch(setProducts(products));
     });
 
-    return unsubscribe; 
+    return unsubscribe;
   }
 );
 
 // ---------------- Add Product ----------------
+// The product argument now expects all the new fields
 export const addProduct = createAsyncThunk(
   "products/add",
   async (product: Product) => {
     const productsRef = ref(db, "products");
-    const newRef = await push(productsRef, product);
+    
+    // Ensure all data except the temporary 'id' is pushed
+    const { id, ...dataToPush } = product; 
+
+    const newRef = await push(productsRef, dataToPush);
     return { id: newRef.key!, ...product };
   }
 );
 
 // ---------------- Update Product ----------------
+// The product argument now expects all the new fields
 export const updateProduct = createAsyncThunk(
   "products/update",
   async (product: Product) => {
@@ -66,10 +77,16 @@ export const updateProduct = createAsyncThunk(
 
     const productRef = ref(db, `products/${product.id}`);
 
+    // Destructure the product to explicitly specify fields for the update payload
+    const { name, price, categoryId, description, productImage, mg } = product;
+
     await update(productRef, {
-      name: product.name,
-      price: product.price,
-      category: product.category,
+      name,
+      price,
+      categoryId,
+      description,
+      productImage,
+      mg
     });
 
     return product;
