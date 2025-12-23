@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { AppDispatch, RootState } from "../app/store";
@@ -9,8 +10,11 @@ import {
     deleteCategory,
     type Category,
 } from "../features/products/categoriesSlice";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 
 interface CategoryFormData {
+    image: string | undefined;
     id?: string;
     name: string;
     description: string;
@@ -34,11 +38,30 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ categoryToEdit, onClose }) 
     const [formData, setFormData] = useState<CategoryFormData>({
         name: categoryToEdit?.name || "",
         description: categoryToEdit?.description || "",
+        image: categoryToEdit?.image || "",
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            setFormData(prev => ({
+                ...prev,
+                image: reader.result as string,
+            }));
+        };
+        reader.readAsDataURL(file);
+    };
+
+    console.log("Form Data Image:", formData);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -46,6 +69,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ categoryToEdit, onClose }) 
         const categoryPayload: Category = {
             name: formData.name,
             description: formData.description,
+            image: formData.image,
         };
 
         if (categoryToEdit?.id) {
@@ -99,6 +123,17 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ categoryToEdit, onClose }) 
                         />
                     </div>
 
+
+                    <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="productImage">Product Image</Label>
+                        <Input
+                            id="productImage"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                        />
+                    </div>
+
                     <div className="flex justify-end pt-4">
                         <button
                             type="button"
@@ -131,6 +166,9 @@ export default function Categories() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
+    console.log("categories:", categories);
+
+
     useEffect(() => {
         dispatch(startCategoriesRealtime());
     }, [dispatch]);
@@ -146,7 +184,7 @@ export default function Categories() {
         setIsModalOpen(true);
     };
 
-    const handleDelete = (id: string | undefined, name: string) => {
+    const handleDelete = (id: any, name: any) => {
         if (!id) return;
 
         if (window.confirm(`Are you sure you want to delete the category: "${name}"?`)) {
@@ -193,10 +231,16 @@ export default function Categories() {
                         {categories.length > 0 ? (
                             categories.map((category) => (
                                 <tr key={category.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{category.name}</td>
+                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                        <div className="flex items-center space-x-3">
+                                            {category.image && (
+                                                <img src={category.image} alt={category.name} className="h-8 w-8 object-cover rounded-md" />
+                                            )}
+                                            <span>{category.name}</span>
+                                        </div>
+                                    </td>
                                     <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 max-w-sm">{category.description || 'No description provided.'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-
                                         <button
                                             onClick={() => handleEdit(category)}
                                             className="text-indigo-600 hover:text-indigo-900 p-2 rounded-full hover:bg-gray-100 transition"

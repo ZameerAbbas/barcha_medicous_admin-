@@ -7,6 +7,7 @@ import ProductsPage from "./pages/product";
 import Categories from "./pages/Categories";
 import Address from "./pages/addresses";
 import Order from "./pages/order";
+import ProductOrderDetail from "./pages/productorderdetail";
 
 export default function App() {
   return (
@@ -68,6 +69,16 @@ export default function App() {
           <ProtectedRoute>
             <DashboardLayout>
               <Address />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/productorderdetail"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <ProductOrderDetail />
             </DashboardLayout>
           </ProtectedRoute>
         }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
@@ -12,12 +13,14 @@ import {
 
 
 export interface Product {
+  product?: any;
   id?: string;
   name: string;
   price: number;
   categoryId: string; 
   description: string;
   productImage: string;
+  instock: boolean;
   mg: number;
 }
 

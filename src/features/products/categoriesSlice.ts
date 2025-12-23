@@ -10,20 +10,14 @@ import {
   onValue,
 } from "firebase/database";
 
-// --- Interfaces ---
-
-/**
- * Defines the structure for a Category object.
- */
 export interface Category {
-  id?: string; // Optional for new categories, mandatory for updates/deletes
-  name: string;
-  description?: string; // Optional field for added detail
+  id?: string; 
+  name?: string;
+  description?: string; 
+  image?: string; 
 }
 
-/**
- * Defines the shape of the Categories slice state.
- */
+
 interface CategoryState {
   categories: Category[];
   loading: boolean;
@@ -34,21 +28,12 @@ const initialState: CategoryState = {
   loading: true,
 };
 
-// =======================================================
-//                   Async Thunks (CRUD Operations)
-// =======================================================
 
-// ---------------- Realtime Fetch ----------------
-/**
- * Establishes a real-time listener on the 'categories' node in Firebase.
- * Dispatches `setCategories` whenever the data changes.
- */
 export const startCategoriesRealtime = createAsyncThunk(
   "categories/startRealtime",
   async (_, { dispatch }) => {
     const categoriesRef = ref(db, "categories");
 
-    // This listener automatically pushes updates to the store
     const unsubscribe = onValue(categoriesRef, (snapshot) => {
       const data = snapshot.val();
       const categories: Category[] = data
@@ -61,29 +46,21 @@ export const startCategoriesRealtime = createAsyncThunk(
       dispatch(setCategories(categories));
     });
 
-    // Return the unsubscribe function for cleanup if needed
     return unsubscribe; 
   }
 );
 
-// ---------------- Add Category ----------------
-/**
- * Adds a new category to the 'categories' node in Firebase.
- */
+
 export const addCategory = createAsyncThunk(
   "categories/add",
   async (category: Category) => {
     const categoriesRef = ref(db, "categories");
-    // Firebase automatically generates a unique key
     const newRef = await push(categoriesRef, category);
     return { id: newRef.key!, ...category };
   }
 );
 
-// ---------------- Update Category ----------------
-/**
- * Updates an existing category in Firebase using its ID.
- */
+
 export const updateCategory = createAsyncThunk(
   "categories/update",
   async (category: Category) => {
@@ -114,9 +91,6 @@ export const deleteCategory = createAsyncThunk(
   }
 );
 
-// =======================================================
-//                         Slice
-// =======================================================
 
 const categoriesSlice = createSlice({
   name: "categories",
@@ -142,7 +116,7 @@ const categoriesSlice = createSlice({
       .addCase(updateCategory.fulfilled, (state, action) => {
         const index = state.categories.findIndex(c => c.id === action.payload.id);
         if (index !== -1) {
-          // Replace the old category object with the new one
+  
           state.categories[index] = action.payload;
         }
       })

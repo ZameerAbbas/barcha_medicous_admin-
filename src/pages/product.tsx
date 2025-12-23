@@ -19,17 +19,19 @@ import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Textarea } from "../components/ui/textarea";
+import { Checkbox } from "../components/ui/checkbox";
 
 
 
 interface ProductFormData {
   id?: string;
   name: string;
-  price: string; 
+  price: string;
   categoryId: string;
   description: string;
   productImage: string;
-  mg: string; 
+  instock: boolean;
+  mg: string;
 }
 
 
@@ -47,6 +49,7 @@ interface ProductFormData {
   categoryId: string;
   description: string;
   productImage: string;
+  instock: boolean;
   mg: string;
 }
 
@@ -67,6 +70,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
     categoryId: productToEdit?.categoryId || "",
     description: productToEdit?.description || "",
     productImage: productToEdit?.productImage || "",
+    instock: productToEdit?.instock || true,
     mg: productToEdit?.mg.toString() || "",
   });
 
@@ -115,6 +119,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
       categoryId: formData.categoryId,
       description: formData.description,
       productImage: formData.productImage,
+      instock: formData.instock,
       mg: parseInt(formData.mg),
     };
 
@@ -208,6 +213,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
           </div>
 
 
+
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="description">Description *</Label>
             <Textarea
@@ -220,6 +226,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
             />
           </div>
 
+          <div className="flex flex-col space-y-1.5">
+            <Label htmlFor="instock">In Stock *</Label>
+            <Checkbox
+              id="instock"
+              name="instock"
+              checked={formData.instock}
+              onCheckedChange={(value) =>
+                setFormData(prev => ({
+                  ...prev,
+                  instock: value as boolean
+                }))
+              }
+              required
+              className="resize-none w-6 h-6"
+            />
+          </div>
 
 
           {formData.productImage && (
@@ -231,7 +253,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
           )}
 
 
-          <div className="flex flex-col space-y-1.5">
+          <div className="">
             <Label htmlFor="productImage">Product Image</Label>
             <Input
               id="productImage"
