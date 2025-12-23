@@ -7,19 +7,27 @@ const OrdersIcon: React.FC = () => <svg xmlns="http://www.w3.org/2000/svg" width
 const CategoriesIcon: React.FC = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>;
 // ---------------------------------------------------------------------------------------------
 
+interface SidebarProps {
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+}
 const navItems = [
-  { to: "/dashboard", name: "Dashboard", icon: <DashboardIcon /> },
+  { to: "/", name: "Dashboard", icon: <DashboardIcon /> },
   { to: "/products", name: "Products", icon: <ProductsIcon /> },
   { to: "/orders", name: "Orders", icon: <OrdersIcon /> },
   { to: "/categories", name: "Categories", icon: <CategoriesIcon /> },
   { to: "/addresses", name: "Addresses", icon: <CategoriesIcon /> },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ sidebarOpen,  }: SidebarProps) {
   const location = useLocation();
 
   return (
-    <div className="w-64 bg-gray-900 h-screen p-4 fixed top-0 left-0 flex flex-col z-10">
+    <div className={`
+      w-64 bg-gray-900 h-screen p-4 fixed top-0 left-0 flex flex-col z-30
+      transform ${sidebarOpen ? "translate-x-0 absolute" : "-translate-x-full relative"} md:translate-x-0
+      transition-transform duration-300
+    `}>
       <div className="mb-8 pb-4 border-b border-gray-700">
         <h2 className="text-2xl font-bold text-white tracking-wider">
           Admin
@@ -34,17 +42,17 @@ export default function Sidebar() {
             <li key={item.to}>
               <Link
                 to={item.to}
-              
+
                 className={`flex items-center p-3 text-sm rounded-lg transition-colors duration-200 w-full mb-1
                   ${isActive ? "bg-[#000055] text-white" : "hover:bg-white/5 text-[#737373]"}
                 `}
               >
-           
+
                 <span className={`${isActive ? "text-white" : "text-[#737373]"} text-lg`}>
                   {item.icon}
                 </span>
 
-            
+
                 <span
                   className={`font-semibold px-3 block
                     ${isActive ? "text-white" : "text-[#737373]"}

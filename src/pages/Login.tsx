@@ -78,7 +78,7 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
+      navigate("/");
     } catch (err: any) {
       // Improve error message display for better UX
       const errorMessage = err.message
