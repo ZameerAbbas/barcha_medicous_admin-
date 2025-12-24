@@ -7,6 +7,8 @@ import ProductsPage from "./pages/product";
 import Categories from "./pages/Categories";
 import Address from "./pages/addresses";
 import Order from "./pages/order";
+import ProductOrderDetail from "./pages/productorderdetail";
+import Brands from "./pages/brand";
 
 export default function App() {
   return (
@@ -68,7 +70,17 @@ export default function App() {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <Address />
+              <ProductOrderDetail />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/brand"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Brands />
             </DashboardLayout>
           </ProtectedRoute>
         }

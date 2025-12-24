@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -20,6 +21,11 @@ import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Textarea } from "../components/ui/textarea";
 import { Checkbox } from "../components/ui/checkbox";
+
+import {
+  startBrandRealtime,
+
+} from "../features/brandSlice";
 
 
 
@@ -47,6 +53,7 @@ interface ProductFormData {
   name: string;
   price: string;
   categoryId: string;
+  brandId: string;
   description: string;
   productImage: string;
   instock: boolean;
@@ -56,10 +63,11 @@ interface ProductFormData {
 interface ProductFormProps {
   productToEdit: Product | null;
   categories: Category[];
+  brand: Category[];
   onClose: () => void;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, onClose }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, brand, onClose }) => {
 
 
 
@@ -68,6 +76,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
     name: productToEdit?.name || "",
     price: productToEdit?.price.toString() || "",
     categoryId: productToEdit?.categoryId || "",
+    brandId: productToEdit?.brandId || "",
     description: productToEdit?.description || "",
     productImage: productToEdit?.productImage || "",
     instock: productToEdit?.instock || true,
@@ -109,6 +118,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
 
     setFormData(prevData => ({ ...prevData, categoryId: value }));
   };
+  const handleSelectChangeBrand = (value: string) => {
+
+    setFormData(prevData => ({ ...prevData, brandId: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,6 +130,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
       name: formData.name,
       price: parseFloat(formData.price),
       categoryId: formData.categoryId,
+      brandId: formData.brandId,
       description: formData.description,
       productImage: formData.productImage,
       instock: formData.instock,
@@ -182,6 +196,23 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
               </Select>
             </div>
           </div>
+
+          <div className="flex flex-col space-y-1.5">
+            <Label htmlFor="brandId">Brand *</Label>
+            <Select onValueChange={handleSelectChangeBrand} value={formData.brandId} required>
+              <SelectTrigger id="brandId">
+                <SelectValue placeholder="Select a Category" />
+              </SelectTrigger>
+              <SelectContent  >
+                {brand.map((brand: any) => (
+                  <SelectItem key={brand.brand} value={brand.brand}>
+                    {brand.brand}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -282,8 +313,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, on
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 
@@ -293,6 +324,7 @@ export default function ProductsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { products, loading: productsLoading } = useSelector((state: RootState) => state.products);
   const { categories, loading: categoriesLoading } = useSelector((state: RootState) => state.categories);
+  const { brandOrders } = useSelector((state: RootState) => state.brand);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -301,6 +333,7 @@ export default function ProductsPage() {
   useEffect(() => {
     dispatch(startProductsRealtime());
     dispatch(startCategoriesRealtime());
+    dispatch(startBrandRealtime());
   }, [dispatch]);
 
 
@@ -332,6 +365,7 @@ export default function ProductsPage() {
   const getCategoryName = (categoryId: string) => {
     return categories.find(c => c.id === categoryId)?.name || 'N/A';
   };
+ 
 
   // --- Render Logic ---
   if (productsLoading || categoriesLoading) {
@@ -349,7 +383,7 @@ export default function ProductsPage() {
         <button
           onClick={handleAddNew}
           className="flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700 transition"
-          disabled={categories.length === 0} // Disable if no categories exist
+          disabled={categories.length === 0}
         >
           <AddIcon />
           {categories.length === 0 ? "Add Category First" : "Add Product"}
@@ -362,6 +396,7 @@ export default function ProductsPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dosage</th>
@@ -379,6 +414,9 @@ export default function ProductsPage() {
                       )}
                       <span>{product.name}</span>
                     </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {product.brandId}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {getCategoryName(product.categoryId)}
@@ -425,6 +463,7 @@ export default function ProductsPage() {
         <ProductForm
           productToEdit={editingProduct}
           categories={categories}
+          brand={brandOrders}
           onClose={closeModal}
         />
       )}

@@ -18,6 +18,7 @@ export interface Product {
   name: string;
   price: number;
   categoryId: string; 
+  brandId: string; 
   description: string;
   productImage: string;
   instock: boolean;
