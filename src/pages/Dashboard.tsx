@@ -47,6 +47,7 @@ import {
   startOrdersRealtime,
 } from "../features/orderSlice"
 import { startCategoriesRealtime } from "../features/products/categoriesSlice"
+import Loader from "../components/Loader"
 
 
 
@@ -70,10 +71,10 @@ export default function Dashboard() {
 
 
   const dispatch = useDispatch<AppDispatch>()
-  const { orders } = useSelector(
+  const { orders, loading: orderLoading } = useSelector(
     (state: RootState) => state.orders
   )
-  const { categories } = useSelector((state: RootState) => state.categories);
+  const { categories, loading: catLoading } = useSelector((state: RootState) => state.categories);
 
 
   useEffect(() => {
@@ -118,6 +119,13 @@ export default function Dashboard() {
   const orderTotal = orders.reduce((sum, product) => {
     return sum + (product.total || 0); // assuming each product has a 'total' field
   }, 0);
+
+
+  if (orderLoading || catLoading) {
+    return (
+      <Loader />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-6    rounded-lg">

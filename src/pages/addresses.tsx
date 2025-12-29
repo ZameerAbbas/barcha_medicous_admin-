@@ -12,6 +12,7 @@ import {
 } from "../features/adress/addressSlice";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
+import Loader from "../components/Loader";
 
 // Define the shape for the form data
 interface AddressFormData {
@@ -43,7 +44,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressToEdit, onClose }) => 
         deliveryFee: addressToEdit?.deliveryFee || "",
     });
 
-    console.log("formData",formData)
+    console.log("formData", formData)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -64,6 +65,9 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressToEdit, onClose }) => 
 
         onClose();
     };
+
+
+
 
 
 
@@ -99,12 +103,12 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressToEdit, onClose }) => 
                         <Label htmlFor={"stateProvince"} className="mb-1">
                             State Province
                         </Label>
-                        <Input name="stateProvince" value={formData.stateProvince}  onChange={handleChange}/>
+                        <Input name="stateProvince" value={formData.stateProvince} onChange={handleChange} />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Label htmlFor={"deliveryFee"} className="mb-1"> Delivery Fee  </Label>
-                        <Input name="deliveryFee" value={formData.deliveryFee}  onChange={handleChange}/>
+                        <Input name="deliveryFee" value={formData.deliveryFee} onChange={handleChange} />
                     </div>
 
                     <div className="flex justify-end pt-4">
@@ -174,7 +178,7 @@ export default function Address() {
     // --- Render Logic ---
     if (loading) {
         return (
-            <div className="p-8 text-center text-xl text-gray-500">Loading addresses...</div>
+            <Loader />
         );
     }
 

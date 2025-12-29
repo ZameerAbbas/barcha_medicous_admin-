@@ -57,6 +57,7 @@ import {
 
 
 import { useNavigate } from "react-router-dom";
+import Loader from "../components/Loader"
 
 
 const Order = () => {
@@ -140,6 +141,13 @@ const Order = () => {
 
 
 
+
+
+  if (loading ) {
+    return (
+      <Loader />
+    );
+  }
 
 
   return (

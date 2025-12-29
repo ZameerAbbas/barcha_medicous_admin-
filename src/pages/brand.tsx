@@ -13,6 +13,7 @@ import {
 
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import Loader from "../components/Loader";
 
 
 
@@ -133,8 +134,12 @@ export default function Brands() {
         }
     };
 
+
+
     if (loading) {
-        return <div className="p-8 text-center text-xl text-gray-500">Loading brands...</div>;
+        return (
+            <Loader />
+        );
     }
 
     return (

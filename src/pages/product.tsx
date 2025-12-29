@@ -26,6 +26,7 @@ import {
   startBrandRealtime,
 
 } from "../features/brandSlice";
+import Loader from "../components/Loader";
 
 
 
@@ -365,12 +366,14 @@ export default function ProductsPage() {
   const getCategoryName = (categoryId: string) => {
     return categories.find(c => c.id === categoryId)?.name || 'N/A';
   };
- 
+
+
+  console.log("products", products)
 
   // --- Render Logic ---
   if (productsLoading || categoriesLoading) {
     return (
-      <div className="p-8 text-center text-xl text-gray-500">Loading products and categories...</div>
+      <Loader />
     );
   }
 

@@ -7,7 +7,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ChevronDown, PackageCheck, Package, Truck, CreditCard, XCircle, AlertCircle, Clock } from 'lucide-react'
+import { ChevronDown, PackageCheck, Package, Truck, CreditCard, XCircle, AlertCircle, Clock, Download } from 'lucide-react'
 
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card"
@@ -39,6 +39,12 @@ import OrderProgress from '../components/orderprogress'
 import { updateOrder } from '../features/orderSlice'
 import { get, ref } from 'firebase/database'
 import { db } from '../firebase'
+import Loader from '../components/Loader'
+import html2canvas from "html2canvas"
+import jsPDF from "jspdf"
+import { createRoot } from 'react-dom/client'
+import InvoicePrint from '../components/printInvoice'
+
 
 
 
@@ -151,6 +157,73 @@ export default function ProductOrderDetail() {
 
 
 
+  const [loadingExport, setLoadingExport] = useState(false)
+
+
+  const handleDownloadInvoice = async (order:any) => {
+    const element = document.createElement("div");
+    element.style.width = "210mm";
+    element.style.height = "297mm";
+    element.style.padding = "8px 12px";
+    document.body.appendChild(element);
+
+    const root = createRoot(element);
+    root.render(<InvoicePrint order={order} />); // Renders invoice with Arabic text
+
+    try {
+      // Wait to ensure fonts and content load
+      setLoadingExport(true)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        width: 793.7,
+        height: 1122.5,
+        onclone: (doc) => {
+          // Inject Arabic-compatible font (e.g., Cairo)
+          const link = doc.createElement("link");
+          link.href = "https://fonts.googleapis.com/css2?family=Cairo&display=swap";
+          link.rel = "stylesheet";
+          doc.head.appendChild(link);
+
+          const style = doc.createElement("style");
+          style.textContent = `
+          * {
+            font-family: 'Cairo', sans-serif !important;
+            unicode-bidi: isolate; /* ensures correct shaping without RTL */
+          }
+          body {
+            margin: 0;
+            padding: 4px;
+            font-family: 'Cairo', sans-serif !important;
+          }
+        `;
+          doc.head.appendChild(style);
+        },
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, 210, 297); // A4 dimensions
+      pdf.save(`invoice_${order?.orderId}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      root.unmount();
+      setLoadingExport(false)
+      document.body.removeChild(element);
+    }
+  };
 
 
 
@@ -164,7 +237,12 @@ export default function ProductOrderDetail() {
 
 
 
-  if (!order) return <p>Loading...</p>;
+  if (!order) {
+    return (
+      <Loader />
+    );
+  }
+
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
@@ -190,7 +268,44 @@ export default function ProductOrderDetail() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-white">
 
+              <DropdownMenuItem onSelect={(event) => {
+                event.preventDefault()
+                handleDownloadInvoice(order)
+              }}
 
+                className="cursor-pointer"
+              >
+                {loadingExport ? (
+                  <>
+                    <svg
+                      className="animate-spin h-4 w-4 mr-2 text-gray-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download invoice
+                  </>
+                )}
+              </DropdownMenuItem>
 
 
               <DropdownMenuItem onClick={() => void handleStatusChange("pending")} disabled={order?.orderStatus?.status === 'Cancelled'} className="cursor-pointer">
