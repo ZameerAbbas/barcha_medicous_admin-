@@ -93,9 +93,9 @@ export default function Dashboard() {
 
   const categoryMap: Record<string, number> = {};
 
-  orders.forEach((order) => {
-    order.ProductOrder.forEach((product) => {
-      const categoryName = categories.find((c: any) => c.id === product.product.categoryId)?.name || "Unknown";
+  orders?.forEach((order) => {
+    order?.ProductOrder?.forEach((product) => {
+      const categoryName = categories?.find((c: any) => c?.id === product?.product?.categoryId)?.name || "Unknown";
       categoryMap[categoryName] = (categoryMap[categoryName] || 0) + 1;
     });
   });
