@@ -22,6 +22,7 @@ interface AddressFormData {
     stateProvince: string;
     zipCode: string;
     deliveryFee: string;
+    deliveryFree: string;
 }
 
 const AddIcon = () => <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>;
@@ -42,6 +43,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressToEdit, onClose }) => 
         stateProvince: addressToEdit?.stateProvince || "",
         zipCode: addressToEdit?.zipCode || "",
         deliveryFee: addressToEdit?.deliveryFee || "",
+        deliveryFree: addressToEdit?.deliveryFree || "",
     });
 
     console.log("formData", formData)
@@ -109,6 +111,10 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressToEdit, onClose }) => 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Label htmlFor={"deliveryFee"} className="mb-1"> Delivery Fee  </Label>
                         <Input name="deliveryFee" value={formData.deliveryFee} onChange={handleChange} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Label htmlFor={"deliveryFree"} className="mb-1"> Free Delivery on Orders Over </Label>
+                        <Input name="deliveryFree" value={formData.deliveryFree} onChange={handleChange} />
                     </div>
 
                     <div className="flex justify-end pt-4">
@@ -204,6 +210,7 @@ export default function Address() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Street</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City, State</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Fee</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">  Free Delivery on Orders Over</th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -213,7 +220,8 @@ export default function Address() {
                                 <tr key={address.id}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{address.street}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`${address.city}, ${address.stateProvince}`}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`(${address.deliveryFee})`}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`${address.deliveryFee}`}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`${address.deliveryFree || "N/A"}`}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                         {/* Edit Button */}
                                         <button

@@ -18,6 +18,7 @@ export interface Address {
   stateProvince: string;
   zipCode: string;
   deliveryFee: string;
+  deliveryFree: string;
   // userId?: string; // Optional: If addresses are linked to a specific user
 }
 
