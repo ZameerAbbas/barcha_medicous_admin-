@@ -20,7 +20,7 @@ const navItems = [
   { to: "/brand", name: "Brand", icon: <CategoriesIcon /> },
 ];
 
-export default function Sidebar({ sidebarOpen,  }: SidebarProps) {
+export default function Sidebar({ sidebarOpen, }: SidebarProps) {
   const location = useLocation();
 
   return (
@@ -31,7 +31,7 @@ export default function Sidebar({ sidebarOpen,  }: SidebarProps) {
     `}>
       <div className="mb-8 pb-4 border-b border-gray-700">
         <h2 className="text-2xl font-bold text-white tracking-wider">
-          Admin
+          <img src={"../public/logo.png"} alt="BARCHA Medicous" />
         </h2>
       </div>
 

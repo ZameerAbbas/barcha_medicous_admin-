@@ -58,16 +58,16 @@ import { auth } from "../firebase";
 import { useNavigate, Link } from "react-router-dom"; // Import Link for "Sign Up"
 
 // Assuming you have a logo image or a way to render it
-const BmcLogo = () => (
-  <div className="flex items-center space-x-2">
-    <span className="text-xl font-bold text-green-600">BMC</span>
-    <span className="text-sm text-gray-700 dark:text-gray-300">Barcha Medical Store</span>
-  </div>
-);
+// const BmcLogo = () => (
+//   <div className="flex items-center space-x-2">
+//     <span className="text-xl font-bold text-green-600">BMC</span>
+//     <span className="text-sm text-gray-700 dark:text-gray-300">Barcha Medical Store</span>
+//   </div>
+// );
 
 export default function Login() {
   const [email, setEmail] = useState("");
-  
+
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -97,7 +97,16 @@ export default function Login() {
 
       {/* Logo container at the top left */}
       <div className="absolute top-6 left-6 text-white">
-        <BmcLogo />
+        {/* <BmcLogo /> */}
+        <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32">
+          <img
+            src="/logo.png"
+            alt="BARCHA Medicous"
+            className="w-full h-full object-contain"
+          />
+        </div>
+
+
       </div>
 
       {/* Main Login Card/Form Container */}
