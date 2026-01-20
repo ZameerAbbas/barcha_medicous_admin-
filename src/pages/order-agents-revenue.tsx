@@ -59,8 +59,17 @@ import {
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader"
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
-const Order = () => {
+
+
+import {
+  startAgentsRealtime,
+
+} from "../features/agentsSlice";
+
+const OrderAgentsRevenue = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>()
@@ -68,29 +77,32 @@ const Order = () => {
     (state: RootState) => state.orders
   )
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedAgent, setSelectedAgent] = useState<any>({ referralCode: "all" })
 
 
   const [selectedOrders, setSelectedOrders] = useState<string[]>([])
+
+  const { agents } = useSelector((state: RootState) => state.agents);
 
   const pageSize = 10
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     dispatch(startOrdersRealtime())
+    dispatch(startAgentsRealtime())
   }, [dispatch])
 
 
-  console.log("statusFilter", statusFilter)
 
   const filteredOrders = useMemo(() => {
     return orders
       .filter((order) => {
         const matchSearch =
-          searchTerm === "" || order.id?.toString().includes(searchTerm)
+          searchTerm === "" || order.id?.toString().includes(searchTerm) || order.referralCode?.toLowerCase().includes(searchTerm.toLowerCase())
         const matchStatus =
-          statusFilter === "all" || order?.orderStatus?.status === statusFilter
-        // Both conditions must be true
+          selectedAgent.referralCode === "all" ||
+          order?.referralCode === selectedAgent.referralCode
+
         return matchSearch && matchStatus
       })
       .sort((a, b) => {
@@ -98,7 +110,7 @@ const Order = () => {
         const dateB = new Date(b.orderDate).getTime()
         return dateB - dateA
       })
-  }, [orders, searchTerm, statusFilter])
+  }, [orders, searchTerm, selectedAgent.referralCode])
 
 
   console.log("filteredOrders", filteredOrders)
@@ -129,10 +141,7 @@ const Order = () => {
     )
   }
 
-  const exportToPDF = () => {
-    console.log("Export orders:", filteredOrders)
-    alert("PDF export logic can be added here")
-  }
+
 
   const handleRowClick = (order: any) => {
     localStorage.setItem("OrderId", order.id!);
@@ -143,11 +152,92 @@ const Order = () => {
 
 
 
-  if (loading ) {
+
+  const totalAgentCommission =
+    selectedAgent !== "all"
+      ? filteredOrders.reduce((sum, order) => {
+        return (
+          sum +
+          (order.total * Number(selectedAgent.percentAge || 0)) / 100
+        );
+      }, 0)
+      : 0;
+
+
+
+  const agentPercentage =
+    selectedAgent !== "all" ? Number(selectedAgent.percentAge || 0) : 0;
+
+  const totalOrders = filteredOrders.length;
+
+  const totalSales = filteredOrders.reduce((sum, order) => {
+    return sum + order.total;
+  }, 0);
+
+  const agentRevenue =
+    selectedAgent !== "all"
+      ? filteredOrders.reduce((sum, order) => {
+        return sum + (order.subtotal * agentPercentage) / 100;
+      }, 0)
+      : 0;
+
+  const adminRevenue = totalSales - agentRevenue;
+
+
+
+
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(18);
+    doc.text("Revenue Invoice Report", 14, 20);
+
+    // Date
+    doc.setFontSize(10);
+    doc.text(`Generated On: ${new Date().toLocaleDateString()}`, 14, 28);
+
+    // Agent Info
+    if (selectedAgent !== "all") {
+      doc.setFontSize(12);
+      doc.text("Agent Details", 14, 40);
+
+      doc.setFontSize(10);
+      doc.text(
+        `Name: ${selectedAgent.firstName} ${selectedAgent.lastName}`,
+        14,
+        48
+      );
+      doc.text(`Email: ${selectedAgent.email}`, 14, 54);
+      doc.text(`Phone: ${selectedAgent.number}`, 14, 60);
+      doc.text(`Commission Rate: ${selectedAgent.percentAge}%`, 14, 66);
+      doc.text(`Referral Code: ${selectedAgent.referralCode}`, 14, 72);
+    }
+
+    // Revenue Summary Table ✅ FIXED
+    autoTable(doc, {
+      startY: selectedAgent !== "all" ? 82 : 40,
+      head: [["Metric", "Amount"]],
+      body: [
+        ["Total Orders", totalOrders.toString()],
+        ["Total Sales", totalSales.toFixed(2)],
+        ["Agent Revenue", agentRevenue.toFixed(2)],
+        ["Admin Revenue", adminRevenue.toFixed(2)],
+      ],
+    });
+
+    doc.save("revenue-invoice.pdf");
+  };
+
+
+  if (loading) {
     return (
       <Loader />
     );
   }
+
+
 
 
   return (
@@ -155,13 +245,13 @@ const Order = () => {
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-2xl font-semibold">
-            All Orders
+            Orders and Agents Revenue
           </CardTitle>
 
-          <Button size="sm" onClick={exportToPDF} className="text-white bg-gray-900  hover:bg-gray-700">
+          {/* <Button size="sm" onClick={exportToPDF} className="text-white bg-gray-900  hover:bg-gray-700">
             <Download className="mr-2 h-4 w-4 " />
             Export to PDF
-          </Button>
+          </Button> */}
         </div>
       </CardHeader>
 
@@ -178,21 +268,37 @@ const Order = () => {
             />
           </div>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select
+            value={selectedAgent.id || "all"}
+            onValueChange={(value) => {
+              if (value === "all") {
+                setSelectedAgent({ referralCode: "all" })
+              } else {
+                const agent = agents.find(a => a.id === value)
+                setSelectedAgent(agent)
+              }
+            }}
+          >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter status" />
+              <SelectValue placeholder="Select agent">
+                {selectedAgent.referralCode === "all"
+                  ? "All Agents"
+                  : `${selectedAgent.firstName} ${selectedAgent.lastName}`}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="inroute">In Route</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
+              <SelectItem value="all">All Agents</SelectItem>
+              {agents.map((agent: any) => (
+                <SelectItem key={agent.id} value={agent.id}>
+                  {agent.firstName} {agent.lastName} ({agent.referralCode})
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
         {/* Table */}
-        <ScrollArea className="h-[600px] border rounded-md">
+        <ScrollArea className="h-[500px] border rounded-md">
           <Table>
             <TableHeader>
               <TableRow>
@@ -206,6 +312,7 @@ const Order = () => {
                   />
                 </TableHead>
                 <TableHead>Order ID</TableHead>
+                <TableHead>Referral Code</TableHead>
                 <TableHead>Order Status</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>City</TableHead>
@@ -236,6 +343,7 @@ const Order = () => {
                     </TableCell>
 
                     <TableCell>{order?.orderId}</TableCell>
+                    <TableCell>{order?.referralCode}</TableCell>
                     <TableCell>{order?.orderStatus?.status}</TableCell>
 
                     <TableCell>
@@ -335,9 +443,62 @@ const Order = () => {
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
+
+        <CardContent>
+
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-2xl font-semibold">
+                {selectedAgent === "all" ? "All Agents" : `Agent: ${selectedAgent.firstName} ${selectedAgent.lastName}`} Revenue
+              </CardTitle>
+
+              <Button size="sm" onClick={exportToPDF} className="text-white bg-gray-900  hover:bg-gray-700">
+                <Download className="mr-2 h-4 w-4 " />
+                Export Revenue
+              </Button>
+            </div>
+
+
+            {selectedAgent !== "all" && (
+              <div className="mt-6 overflow-x-auto">
+                <table className="w-full border border-gray-200 rounded-lg">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Agent Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Email</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Phone</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Commission %</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Referral Code</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">
+                        Total Commission
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr className="border-t">
+                      <td className="px-4 py-3">
+                        {selectedAgent.firstName} {selectedAgent.lastName}
+                      </td>
+                      <td className="px-4 py-3">{selectedAgent.email}</td>
+                      <td className="px-4 py-3">{selectedAgent.number}</td>
+                      <td className="px-4 py-3">{selectedAgent.percentAge}%</td>
+                      <td className="px-4 py-3">{selectedAgent.referralCode}</td>
+                      <td className="px-4 py-3 font-semibold text-green-600">
+                        {totalAgentCommission.toFixed(2)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+          </CardHeader>
+        </CardContent>
+
       </CardContent>
-    </Card>
+    </Card >
   )
 }
 
-export default Order
+export default OrderAgentsRevenue

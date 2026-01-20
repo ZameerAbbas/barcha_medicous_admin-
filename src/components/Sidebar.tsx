@@ -18,6 +18,9 @@ const navItems = [
   { to: "/categories", name: "Categories", icon: <CategoriesIcon /> },
   { to: "/addresses", name: "Addresses", icon: <CategoriesIcon /> },
   { to: "/brand", name: "Brand", icon: <CategoriesIcon /> },
+  { to: "/agent", name: "Agent", icon: <CategoriesIcon /> },
+  { to: "/order-agents", name: "Agent-Orders", icon: <CategoriesIcon /> },
+  { to: "/order-agents-revenue", name: "Agent-Revenue & Orders", icon: <CategoriesIcon /> },
 ];
 
 export default function Sidebar({ sidebarOpen, }: SidebarProps) {

@@ -9,6 +9,9 @@ import Address from "./pages/addresses";
 import Order from "./pages/order";
 import ProductOrderDetail from "./pages/productorderdetail";
 import Brands from "./pages/brand";
+import Agent from "./pages/agent";
+import OrderAgents from "./pages/order-agents";
+import OrderAgentsRevenue from "./pages/order-agents-revenue";
 
 export default function App() {
   return (
@@ -24,7 +27,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-  
+
       <Route
         path="/products"
         element={
@@ -81,6 +84,36 @@ export default function App() {
           <ProtectedRoute>
             <DashboardLayout>
               <Brands />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/agent"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Agent />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/order-agents"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <OrderAgents />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/order-agents-revenue"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <OrderAgentsRevenue />
             </DashboardLayout>
           </ProtectedRoute>
         }

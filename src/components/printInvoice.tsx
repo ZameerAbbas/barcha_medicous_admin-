@@ -28,26 +28,19 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ order }) => {
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-bold">Invoice</h1>
-                    <p className="text-gray-600">Order ID: {order?.id}</p>
+                    <p className="text-gray-600">Order ID: {order?.orderId}</p>
                     <p className="text-gray-600">
                         Date: {format(new Date(order?.createdAt || Date.now()), "dd/MM/yyyy")}
                     </p>
                 </div>
                 <div className="flex items-center gap-2 font-sans">
-                    {/* Logo Icon */}
-                    <div className="bg-blue-600 p-1.5 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                            <line x1="12" y1="5" x2="12" y2="13" />
-                            <line x1="8" y1="9" x2="16" y2="9" />
-                        </svg>
-                    </div>
-
-                    {/* Brand Name */}
-                    <div className="flex flex-col leading-none">
-                        <span className="text-xl font-bold text-slate-800 tracking-tight">BARCHA</span>
-                        <span className="text-[10px] font-semibold text-blue-600 tracking-[0.2em] uppercase">Medicous</span>
-                    </div>
+                    <h2 className="text-2xl font-bold text-white tracking-wider">
+                        <img
+                            src={"../public/logo.png"}
+                            alt="BARCHA Medicous"
+                            className="w-15 h-15"
+                        />
+                    </h2>
                 </div>
             </div>
 

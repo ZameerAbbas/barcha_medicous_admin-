@@ -60,7 +60,12 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader"
 
 
-const Order = () => {
+import {
+  startAgentsRealtime,
+
+} from "../features/agentsSlice";
+
+const OrderAgents = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>()
@@ -68,28 +73,32 @@ const Order = () => {
     (state: RootState) => state.orders
   )
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedAgent, setSelectedAgent] = useState("all")
 
 
   const [selectedOrders, setSelectedOrders] = useState<string[]>([])
+
+  const { agents } = useSelector((state: RootState) => state.agents);
 
   const pageSize = 10
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     dispatch(startOrdersRealtime())
+    dispatch(startAgentsRealtime())
   }, [dispatch])
 
 
-  console.log("statusFilter", statusFilter)
+  console.log("statusFilter", selectedAgent)
+  console.log("agents", agents)
 
   const filteredOrders = useMemo(() => {
     return orders
       .filter((order) => {
         const matchSearch =
-          searchTerm === "" || order.id?.toString().includes(searchTerm)
+          searchTerm === "" || order.id?.toString().includes(searchTerm) || order.referralCode?.toLowerCase().includes(searchTerm.toLowerCase())
         const matchStatus =
-          statusFilter === "all" || order?.orderStatus?.status === statusFilter
+          selectedAgent === "all" || order?.referralCode === selectedAgent
         // Both conditions must be true
         return matchSearch && matchStatus
       })
@@ -98,7 +107,7 @@ const Order = () => {
         const dateB = new Date(b.orderDate).getTime()
         return dateB - dateA
       })
-  }, [orders, searchTerm, statusFilter])
+  }, [orders, searchTerm, selectedAgent])
 
 
   console.log("filteredOrders", filteredOrders)
@@ -143,7 +152,7 @@ const Order = () => {
 
 
 
-  if (loading ) {
+  if (loading) {
     return (
       <Loader />
     );
@@ -178,15 +187,17 @@ const Order = () => {
             />
           </div>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={selectedAgent} onValueChange={setSelectedAgent}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter status" />
+              <SelectValue placeholder="Select agent" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="inroute">In Route</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
+              <SelectItem value="all">All Agents</SelectItem>
+              {agents.map((agent: any) => (
+                <SelectItem key={agent.id} value={agent.referralCode}>
+                  {agent.firstName} {agent.lastName}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -206,6 +217,7 @@ const Order = () => {
                   />
                 </TableHead>
                 <TableHead>Order ID</TableHead>
+                <TableHead>Referral Code</TableHead>
                 <TableHead>Order Status</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>City</TableHead>
@@ -236,6 +248,7 @@ const Order = () => {
                     </TableCell>
 
                     <TableCell>{order?.orderId}</TableCell>
+                    <TableCell>{order?.referralCode}</TableCell>
                     <TableCell>{order?.orderStatus?.status}</TableCell>
 
                     <TableCell>
@@ -340,4 +353,4 @@ const Order = () => {
   )
 }
 
-export default Order
+export default OrderAgents

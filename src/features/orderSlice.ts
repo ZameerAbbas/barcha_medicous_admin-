@@ -29,8 +29,9 @@ export interface Order {
   ProductOrder: Product[];
   subtotal: number;
   deliveryFee: number;
-  total?: number;
+  total?: any;
   orderStatus?:any
+  referralCode?:any
 }
 
 interface OrderState {

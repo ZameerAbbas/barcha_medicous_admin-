@@ -160,7 +160,7 @@ export default function ProductOrderDetail() {
   const [loadingExport, setLoadingExport] = useState(false)
 
 
-  const handleDownloadInvoice = async (order:any) => {
+  const handleDownloadInvoice = async (order: any) => {
     const element = document.createElement("div");
     element.style.width = "210mm";
     element.style.height = "297mm";
@@ -471,6 +471,12 @@ export default function ProductOrderDetail() {
                         {order?.deliveryFee ?? "Free Delivery"}
                       </span>
                     </div>
+                    { order?.referralCode && (<div className="flex justify-between">
+                      <span className="text-muted-foreground">Referral Code</span>
+                      <span>
+                        {order?.referralCode}
+                      </span>
+                    </div>)}
 
 
 
