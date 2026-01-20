@@ -269,7 +269,7 @@ const Order = () => {
                             <DialogTitle>Products</DialogTitle>
                           </DialogHeader>
 
-                          {order.ProductOrder.map((p) => (
+                          {order?.ProductOrder?.map((p) => (
                             <div
                               key={p.id}
                               className="flex justify-between text-sm"
