@@ -47,6 +47,7 @@ import {
   startOrdersRealtime,
 } from "../features/orderSlice"
 import { startCategoriesRealtime } from "../features/products/categoriesSlice"
+import { startUsersRealtime } from "../features/usersSlice"
 import Loader from "../components/Loader"
 
 
@@ -75,11 +76,13 @@ export default function Dashboard() {
     (state: RootState) => state.orders
   )
   const { categories, loading: catLoading } = useSelector((state: RootState) => state.categories);
+  const { users,} = useSelector((state: RootState) => state.users); 
 
 
   useEffect(() => {
     dispatch(startOrdersRealtime())
     dispatch(startCategoriesRealtime())
+    dispatch(startUsersRealtime())
   }, [dispatch])
 
   const revenueData = Array.from({ length: 12 }, (_, i) => {
@@ -139,7 +142,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <StatCard title="Total Revenue" value={orderTotal} icon={DollarSign} description="Over all" />
         <StatCard title="Total Orders" value={orders?.length} icon={ShoppingCart} description="Over all" />
-        <StatCard title="Total Customers" value={orders?.length} icon={Users} description="Active users" />
+        <StatCard title="Total Customers" value={users?.length} icon={Users} description="Active users" />
 
       </div>
 

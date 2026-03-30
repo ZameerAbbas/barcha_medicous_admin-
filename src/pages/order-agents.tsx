@@ -222,6 +222,7 @@ const OrderAgents = () => {
                 <TableHead>Customer</TableHead>
                 <TableHead>City</TableHead>
                 <TableHead>Total</TableHead>
+                <TableHead>Paid to Agent</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Products</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -262,6 +263,10 @@ const OrderAgents = () => {
 
                     <TableCell className="font-semibold">
                       Rs. {order.total}
+                    </TableCell>
+
+                    <TableCell className="font-semibold">
+                      {order.isPaidToRefrral ? "Yes" : "No"}
                     </TableCell>
 
                     <TableCell>

@@ -31,7 +31,8 @@ export interface Order {
   deliveryFee: number;
   total?: any;
   orderStatus?:any
-  referralCode?:any
+  referralCode?:string
+  isPaidToRefrral: boolean
 }
 
 interface OrderState {
@@ -66,6 +67,29 @@ export const startOrdersRealtime = createAsyncThunk(
   }
 );
 
+
+// unpaud referral orders realtime fetch
+export const startUnpaidReferralOrdersRealtime = createAsyncThunk(
+  "orders/startUnpaidReferralRealtime",
+  async (_, { dispatch }) => {
+    const ordersRef = ref(db, "orders");
+
+    const unsubscribe = onValue(ordersRef, (snapshot) => {
+      const data = snapshot.val();
+      const orders: Order[] = data
+        ? Object.keys(data).map((id) => ({ id, ...data[id] }))
+        : [];
+
+      // Filter only orders where isPaidToRefrral === false
+      const unpaidReferralOrders = orders.filter((o) => o.isPaidToRefrral === false);
+
+      dispatch(setOrders(unpaidReferralOrders));
+    });
+
+    return unsubscribe;
+  }
+);
+
 /* ------------------ Add Order ------------------ */
 export const addOrder = createAsyncThunk(
   "orders/add",
@@ -91,7 +115,7 @@ export const updateOrder = createAsyncThunk(
     if (!order.id) throw new Error("Order ID missing");
 
     const orderRef = ref(db, `orders/${order.id}`);
-    const { customer, ProductOrder, subtotal, deliveryFee, orderId, orderStatus } = order;
+    const { customer, ProductOrder, subtotal, deliveryFee, orderId, orderStatus ,isPaidToRefrral} = order;
 
     // Update the order
     await update(orderRef, {
@@ -102,6 +126,7 @@ export const updateOrder = createAsyncThunk(
       total: subtotal + deliveryFee,
       orderId,
       orderStatus,
+      isPaidToRefrral
     });
 
     // Fetch the updated order
@@ -152,6 +177,10 @@ const orderSlice = createSlice({
       .addCase(addOrder.fulfilled, (state, action) => {
         state.orders.push(action.payload);
       })
+     .addCase(startUnpaidReferralOrdersRealtime.fulfilled, (state) => {
+    state.loading = false;
+   
+  })
       .addCase(updateOrder.fulfilled, (state, action) => {
         const index = state.orders.findIndex(
           (o) => o.id === action.payload.id

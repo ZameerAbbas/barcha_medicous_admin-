@@ -7,8 +7,10 @@ import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "../app/store"
 
 import {
-  startOrdersRealtime,
   deleteOrder,
+  startUnpaidReferralOrdersRealtime,
+  updateOrder,
+  type Order,
 } from "../features/orderSlice"
 
 import {
@@ -53,6 +55,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  Notebook,
 } from "lucide-react"
 
 
@@ -80,7 +83,7 @@ const OrderAgentsRevenue = () => {
   const [selectedAgent, setSelectedAgent] = useState<any>({ referralCode: "all" })
 
 
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([])
+  const [selectedOrders, setSelectedOrders] = useState<Order[]>([])
 
   const { agents } = useSelector((state: RootState) => state.agents);
 
@@ -88,7 +91,7 @@ const OrderAgentsRevenue = () => {
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
-    dispatch(startOrdersRealtime())
+    dispatch(startUnpaidReferralOrdersRealtime());
     dispatch(startAgentsRealtime())
   }, [dispatch])
 
@@ -113,7 +116,6 @@ const OrderAgentsRevenue = () => {
   }, [orders, searchTerm, selectedAgent.referralCode])
 
 
-  console.log("filteredOrders", filteredOrders)
   const totalPages = Math.ceil(filteredOrders.length / pageSize)
 
   const paginatedOrders = filteredOrders.slice(
@@ -128,18 +130,16 @@ const OrderAgentsRevenue = () => {
   }
 
   const handleSelectAll = (checked: boolean) => {
-    setSelectedOrders(
-      checked ? filteredOrders.map((o) => o.id!) : []
-    )
-  }
+    setSelectedOrders(checked ? [...filteredOrders] : []);
+  };
 
-  const handleSelectOrder = (id: string) => {
+  const handleSelectOrder = (order: Order) => {
     setSelectedOrders((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
-    )
-  }
+      prev.find((o) => o.id === order.id)
+        ? prev.filter((o) => o.id !== order.id)
+        : [...prev, order]
+    );
+  };
 
 
 
@@ -228,6 +228,29 @@ const OrderAgentsRevenue = () => {
     });
 
     doc.save("revenue-invoice.pdf");
+  };
+
+
+
+
+  const handleUpdatePaidToReferral = async () => {
+    if (selectedOrders.length === 0) return;
+
+    try {
+      await Promise.all(
+        selectedOrders.map((order) =>
+          dispatch(
+            updateOrder({ ...order, isPaidToRefrral: true })
+          )
+        )
+      );
+
+      setSelectedOrders([]);
+      setSelectedAgent('all')
+      alert("Selected agent and  orders have been marked as paid to referral.");
+    } catch (err) {
+      console.error("Failed to update orders:", err);
+    }
   };
 
 
@@ -335,9 +358,9 @@ const OrderAgentsRevenue = () => {
                   <TableRow key={order.id}>
                     <TableCell>
                       <Checkbox
-                        checked={selectedOrders.includes(order.id!)}
+                        checked={selectedOrders.some((o) => o.id === order.id)}
                         onCheckedChange={() =>
-                          handleSelectOrder(order.id!)
+                          handleSelectOrder(order)
                         }
                       />
                     </TableCell>
@@ -449,13 +472,32 @@ const OrderAgentsRevenue = () => {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className="text-2xl font-semibold">
-                {selectedAgent === "all" ? "All Agents" : `Agent: ${selectedAgent.firstName} ${selectedAgent.lastName}`} Revenue
+                {selectedAgent === "all" ? "All Agents" : `Agent: ${selectedAgent.firstName || ''} ${selectedAgent.lastName || ''}`} Revenue
               </CardTitle>
 
-              <Button size="sm" onClick={exportToPDF} className="text-white bg-gray-900  hover:bg-gray-700">
-                <Download className="mr-2 h-4 w-4 " />
-                Export Revenue
-              </Button>
+              <div className="flex justify-between items-center gap-3">
+                <Button size="sm" onClick={() => {
+                  if (selectedOrders?.length <= 0 && selectedAgent !== "all") {
+                    alert("Please select agent and his  orders to export the report.")
+                  } else {
+                    exportToPDF()
+                  }
+                }} className="text-white bg-gray-900  hover:bg-gray-700">
+                  <Download className="mr-2 h-4 w-4 " />
+                  Export Revenue
+                </Button>
+                <Button size="sm" onClick={() => {
+
+                  if (selectedOrders?.length <= 0 && selectedAgent !== "all") {
+                    alert("Please select agent and his  orders to mark as paid.")
+                  } else {
+                    handleUpdatePaidToReferral()
+                  }
+                }} className="text-white bg-gray-900  hover:bg-gray-700">
+                  <Notebook className="mr-2 h-4 w-4 " />
+                  Paid to Agent
+                </Button>
+              </div>
             </div>
 
 
@@ -476,18 +518,32 @@ const OrderAgentsRevenue = () => {
                   </thead>
 
                   <tbody>
-                    <tr className="border-t">
-                      <td className="px-4 py-3">
-                        {selectedAgent.firstName} {selectedAgent.lastName}
-                      </td>
-                      <td className="px-4 py-3">{selectedAgent.email}</td>
-                      <td className="px-4 py-3">{selectedAgent.number}</td>
-                      <td className="px-4 py-3">{selectedAgent.percentAge}%</td>
-                      <td className="px-4 py-3">{selectedAgent.referralCode}</td>
-                      <td className="px-4 py-3 font-semibold text-green-600">
-                        {totalAgentCommission.toFixed(2)}
-                      </td>
-                    </tr>
+                    {selectedAgent ? (
+                      <tr className="border-t">
+                        <td className="px-4 py-3">
+                          {selectedAgent.firstName} {selectedAgent.lastName}
+                        </td>
+                        <td className="px-4 py-3">{selectedAgent.email}</td>
+                        <td className="px-4 py-3">{selectedAgent.number}</td>
+                        <td className="px-4 py-3">{selectedAgent.percentAge}%</td>
+                        <td className="px-4 py-3">{selectedAgent.referralCode}</td>
+                        <td className="px-4 py-3 font-semibold text-green-600">
+                          {totalAgentCommission.toFixed(2)}
+                        </td>
+                      </tr>) : (
+                      <tr className="border-t">
+                        <td className="px-4 py-3">
+
+                        </td>
+                        <td className="px-4 py-3"></td>
+                        <td className="px-4 py-3">Please select an agenct to get revenue details</td>
+                        <td className="px-4 py-3"></td>
+                        <td className="px-4 py-3"></td>
+                        <td className="px-4 py-3 font-semibold text-green-600">
+
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

@@ -142,8 +142,10 @@ const Order = () => {
 
 
 
+ 
 
-  if (loading ) {
+
+  if (loading) {
     return (
       <Loader />
     );
