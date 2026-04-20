@@ -114,7 +114,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     productImage: productToEdit?.productImage || "",
     instock: productToEdit?.instock ?? true,
     mg: productToEdit?.mg || 0,
-    numberOfSold: productToEdit?.numberOfSold || 0,
+    totalSold: productToEdit?.totalSold || 0,
   });
 
   const handleChange = (
@@ -160,7 +160,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       productImage: formData.productImage,
       instock: formData.instock,
       mg: formData.mg,
-      numberOfSold: formData.numberOfSold,
+      totalSold: formData.totalSold,
     };
 
     if (productToEdit?.id) {

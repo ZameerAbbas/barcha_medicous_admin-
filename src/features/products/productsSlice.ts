@@ -26,7 +26,7 @@ export interface Product {
   productImage: string;
   instock: boolean;
   mg: number;
-  numberOfSold: number;
+  totalSold: number;
 }
 
 interface ProductState {
