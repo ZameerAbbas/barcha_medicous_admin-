@@ -120,7 +120,7 @@ export default function Dashboard() {
 
 
   const orderTotal = orders.reduce((sum, product) => {
-    return sum + (product.total || 0); // assuming each product has a 'total' field
+    return sum + (product.total || 0); 
   }, 0);
 
 
@@ -153,7 +153,7 @@ export default function Dashboard() {
           <Card className="bg-slate-900 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white">Revenue & Orders Trend</CardTitle>
-              <CardDescription>Monthly performance overview</CardDescription>
+              <CardDescription className="text-gray-400">Monthly performance overview</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -193,7 +193,7 @@ export default function Dashboard() {
           <Card className="bg-slate-900 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white">Category Distribution</CardTitle>
-              <CardDescription>Sales by category</CardDescription>
+              <CardDescription className="text-gray-400">Sales by category</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -227,7 +227,7 @@ export default function Dashboard() {
       <Card className="bg-slate-900 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white">Recent Orders</CardTitle>
-          <CardDescription>Latest 5 orders from customers</CardDescription>
+          <CardDescription className="text-gray-400">Latest 5 orders from customers</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -246,7 +246,7 @@ export default function Dashboard() {
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="border-b border-slate-700 hover:bg-slate-800 transition">
                     <td className="py-3 px-4 text-slate-200 font-medium">{order.orderId}</td>
-                    <td className="py-3 px-4 text-slate-200">{order.customer.firstName} {order.customer.lastName}</td>
+                    <td className="py-3 px-4 text-slate-200">{order?.customer?.firstName} {order?.customer?.lastName}</td>
                     <td className="py-3 px-4 text-slate-400">{order?.ProductOrder?.length} items</td>
                     <td className="py-3 px-4 text-slate-200 font-semibold">Rs. {order.total}</td>
                     <td className="py-3 px-4">
@@ -261,7 +261,7 @@ export default function Dashboard() {
                         {order.orderStatus.status}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-slate-400">{order.orderDate}</td>
+                    <td className="py-3 px-4 text-slate-400">{order?.orderDate?.split('T')[0]}</td>
                   </tr>
                 ))}
               </tbody>

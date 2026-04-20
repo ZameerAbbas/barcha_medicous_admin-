@@ -253,12 +253,12 @@ const OrderAgents = () => {
                     <TableCell>{order?.orderStatus?.status}</TableCell>
 
                     <TableCell>
-                      {order.customer.firstName}{" "}
-                      {order.customer.lastName}
+                      {order?.customer?.firstName}{" "}
+                      {order?.customer?.lastName}
                     </TableCell>
 
                     <TableCell>
-                      {order.customer.city?.city}
+                      {order?.customer?.city?.city}
                     </TableCell>
 
                     <TableCell className="font-semibold">

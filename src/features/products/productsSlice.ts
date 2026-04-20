@@ -17,12 +17,16 @@ export interface Product {
   id?: string;
   name: string;
   price: number;
-  categoryId: string; 
-  brandId: string; 
+  category: {
+    id: string;
+    name: string;
+  };
+  brand: string;
   description: string;
   productImage: string;
   instock: boolean;
   mg: number;
+  numberOfSold: number;
 }
 
 interface ProductState {
@@ -44,9 +48,9 @@ export const startProductsRealtime = createAsyncThunk(
       const data = snapshot.val();
       const products: Product[] = data
         ? Object.keys(data).map(id => ({
-            id,
-            ...data[id]
-          }))
+          id,
+          ...data[id]
+        }))
         : [];
 
       dispatch(setProducts(products));
@@ -60,8 +64,8 @@ export const addProduct = createAsyncThunk(
   "products/add",
   async (product: Product) => {
     const productsRef = ref(db, "products");
-  
-    const { id, ...dataToPush } = product; 
+
+    const { id, ...dataToPush } = product;
 
     const newRef = await push(productsRef, dataToPush);
     return { id: newRef.key!, ...product };
@@ -75,16 +79,17 @@ export const updateProduct = createAsyncThunk(
 
     const productRef = ref(db, `products/${product.id}`);
 
-  
-    const { name, price, categoryId, description, productImage, mg } = product;
+
+    const { name, price, category, description, productImage, mg, brand } = product;
 
     await update(productRef, {
       name,
       price,
-      categoryId,
+      category,
       description,
       productImage,
-      mg
+      mg,
+      brand
     });
 
     return product;

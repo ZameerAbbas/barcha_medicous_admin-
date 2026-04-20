@@ -15,51 +15,81 @@ import {
   type Category,
 } from "../features/products/categoriesSlice";
 
-
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { Textarea } from "../components/ui/textarea";
 import { Checkbox } from "../components/ui/checkbox";
 
-import {
-  startBrandRealtime,
-
-} from "../features/brandSlice";
+import { startBrandRealtime } from "../features/brandSlice";
 import Loader from "../components/Loader";
 
-
-
-interface ProductFormData {
-  id?: string;
-  name: string;
-  price: string;
-  categoryId: string;
-  description: string;
-  productImage: string;
-  instock: boolean;
-  mg: string;
-}
-
-
-const AddIcon = () => <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>;
-const EditIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>;
-const DeleteIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>;
-const CloseIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"></path></svg>;
-
-
-
-interface ProductFormData {
-  id?: string;
-  name: string;
-  price: string;
-  categoryId: string;
-  brandId: string;
-  description: string;
-  productImage: string;
-  instock: boolean;
-  mg: string;
-}
+const AddIcon = () => (
+  <svg
+    className="w-5 h-5 mr-2"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M12 4v16m8-8H4"
+    ></path>
+  </svg>
+);
+const EditIcon = () => (
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+    ></path>
+  </svg>
+);
+const DeleteIcon = () => (
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+    ></path>
+  </svg>
+);
+const CloseIcon = () => (
+  <svg
+    className="w-6 h-6"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M6 18L18 6M6 6l12 12"
+    ></path>
+  </svg>
+);
 
 interface ProductFormProps {
   productToEdit: Product | null;
@@ -68,30 +98,34 @@ interface ProductFormProps {
   onClose: () => void;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, brand, onClose }) => {
-
-
-
+const ProductForm: React.FC<ProductFormProps> = ({
+  productToEdit,
+  categories,
+  brand,
+  onClose,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [formData, setFormData] = useState<ProductFormData>({
+  const [formData, setFormData] = useState<Product>({
     name: productToEdit?.name || "",
-    price: productToEdit?.price.toString() || "",
-    categoryId: productToEdit?.categoryId || "",
-    brandId: productToEdit?.brandId || "",
+    price: productToEdit?.price || 0,
+    category: productToEdit?.category || { id: "", name: "" },
+    brand: productToEdit?.brand || "",
     description: productToEdit?.description || "",
     productImage: productToEdit?.productImage || "",
-    instock: productToEdit?.instock || true,
-    mg: productToEdit?.mg.toString() || "",
+    instock: productToEdit?.instock ?? true,
+    mg: productToEdit?.mg || 0,
+    numberOfSold: productToEdit?.numberOfSold || 0,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [name as keyof ProductFormData]: value
+      [name as keyof Product]: value,
     }));
   };
-
 
   console.log("Current formData:", formData);
   console.log("productToEdit:", productToEdit);
@@ -102,7 +136,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
 
     const reader = new FileReader();
     reader.onload = () => {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         productImage: reader.result as string,
       }));
@@ -110,18 +144,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
     reader.readAsDataURL(file);
   };
 
-
-
-
-
-
-  const handleSelectChange = (value: string) => {
-
-    setFormData(prevData => ({ ...prevData, categoryId: value }));
-  };
   const handleSelectChangeBrand = (value: string) => {
-
-    setFormData(prevData => ({ ...prevData, brandId: value }));
+    setFormData((prevData) => ({ ...prevData, brand: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -129,13 +153,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
 
     const productPayload: Product = {
       name: formData.name,
-      price: parseFloat(formData.price),
-      categoryId: formData.categoryId,
-      brandId: formData.brandId,
+      price: formData.price,
+      category: formData.category,
+      brand: formData.brand,
       description: formData.description,
       productImage: formData.productImage,
       instock: formData.instock,
-      mg: parseInt(formData.mg),
+      mg: formData.mg,
+      numberOfSold: formData.numberOfSold,
     };
 
     if (productToEdit?.id) {
@@ -148,26 +173,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
   };
 
   return (
-
     <div className="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-7 max-h-[90vh] overflow-y-auto transform transition-all">
-
-
         <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
           <h3 className="text-2xl font-extrabold text-gray-800">
             {productToEdit ? "Edit Product" : "Add New Product"}
           </h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 p-2 rounded-full transition">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 p-2 rounded-full transition"
+          >
             <CloseIcon />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="name">Product Name *</Label>
               <Input
@@ -180,16 +201,33 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
               />
             </div>
 
-
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="categoryId">Category *</Label>
-              <Select onValueChange={handleSelectChange} value={formData.categoryId} required>
+              <Select
+                onValueChange={(value) => {
+                  const selectedCategory = categories.find(
+                    (c) => c.id === value,
+                  );
+
+                  console.log("Selected category object:", selectedCategory);
+                  setFormData({
+                    ...formData,
+                    category: {
+                      id: selectedCategory?.id || "",
+                      name: selectedCategory?.name || "",
+                    }
+                  });
+                }}
+                value={formData.category?.id}
+                required
+              >
                 <SelectTrigger id="categoryId">
                   <SelectValue placeholder="Select a Category" />
                 </SelectTrigger>
-                <SelectContent  >
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id!}>
+
+                <SelectContent>
+                  {categories.map((category:any) => (
+                    <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -200,11 +238,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
 
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="brandId">Brand *</Label>
-            <Select onValueChange={handleSelectChangeBrand} value={formData.brandId} required>
+            <Select
+              onValueChange={handleSelectChangeBrand}
+              value={formData.brand}
+              required
+            >
               <SelectTrigger id="brandId">
                 <SelectValue placeholder="Select a Category" />
               </SelectTrigger>
-              <SelectContent  >
+              <SelectContent>
                 {brand.map((brand: any) => (
                   <SelectItem key={brand.brand} value={brand.brand}>
                     {brand.brand}
@@ -214,12 +256,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
             </Select>
           </div>
 
-
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="price">Price  *</Label>
+              <Label htmlFor="price">Price *</Label>
               <Input
                 id="price"
                 name="price"
@@ -229,7 +268,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
                 required
               />
             </div>
-
 
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="mg">Dosage (mg) *</Label>
@@ -243,8 +281,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
               />
             </div>
           </div>
-
-
 
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="description">Description *</Label>
@@ -265,16 +301,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
               name="instock"
               checked={formData.instock}
               onCheckedChange={(value) =>
-                setFormData(prev => ({
+                setFormData((prev) => ({
                   ...prev,
-                  instock: value as boolean
+                  instock: value as boolean,
                 }))
               }
               required
               className="resize-none w-6 h-6"
             />
           </div>
-
 
           {formData.productImage && (
             <img
@@ -283,7 +318,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
               className="w-32 h-32 object-cover rounded-lg border"
             />
           )}
-
 
           <div className="">
             <Label htmlFor="productImage">Product Image</Label>
@@ -294,9 +328,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
               onChange={handleImageChange}
             />
           </div>
-
-
-
 
           <div className="flex justify-end pt-5 border-t border-gray-200 mt-6">
             <button
@@ -314,17 +345,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ productToEdit, categories, br
             </button>
           </div>
         </form>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 };
 
-
-
 export default function ProductsPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { products, loading: productsLoading } = useSelector((state: RootState) => state.products);
-  const { categories, loading: categoriesLoading } = useSelector((state: RootState) => state.categories);
+  const { products, loading: productsLoading } = useSelector(
+    (state: RootState) => state.products,
+  );
+  const { categories, loading: categoriesLoading } = useSelector(
+    (state: RootState) => state.categories,
+  );
   const { brandOrders } = useSelector((state: RootState) => state.brand);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -336,7 +369,6 @@ export default function ProductsPage() {
     dispatch(startCategoriesRealtime());
     dispatch(startBrandRealtime());
   }, [dispatch]);
-
 
   // --- CRUD Handlers ---
   const handleEdit = (product: Product) => {
@@ -352,7 +384,9 @@ export default function ProductsPage() {
   const handleDelete = (id: string | undefined, name: string) => {
     if (!id) return;
 
-    if (window.confirm(`Are you sure you want to delete the product: "${name}"?`)) {
+    if (
+      window.confirm(`Are you sure you want to delete the product: "${name}"?`)
+    ) {
       dispatch(deleteProduct(id));
     }
   };
@@ -362,24 +396,13 @@ export default function ProductsPage() {
     setEditingProduct(null);
   };
 
-  // Helper to find category name by ID
-  const getCategoryName = (categoryId: string) => {
-    return categories.find(c => c.id === categoryId)?.name || 'N/A';
-  };
-
-
-  console.log("products", products)
-
   // --- Render Logic ---
   if (productsLoading || categoriesLoading) {
-    return (
-      <Loader />
-    );
+    return <Loader />;
   }
 
   return (
     <div className="p-4 sm:p-8">
-
       {/* Header and Add Button */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Product Inventory</h1>
@@ -398,12 +421,24 @@ export default function ProductsPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dosage</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Product
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Brand{" "}
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Category
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Price
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Dosage
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -413,22 +448,26 @@ export default function ProductsPage() {
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
                     <div className="flex items-center space-x-3">
                       {product.productImage && (
-                        <img src={product.productImage} alt={product.name} className="h-8 w-8 object-cover rounded-md" />
+                        <img
+                          src={product.productImage}
+                          alt={product.name}
+                          className="h-8 w-8 object-cover rounded-md"
+                        />
                       )}
                       <span>{product.name}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.brandId}
+                    {product?.brand || "N/A"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {getCategoryName(product.categoryId)}
+                    {product?.category?.name || "N/A"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    PKR {product.price.toFixed(2)}
+                    PKR {product?.price?.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.mg} mg
+                    {product?.mg} mg
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                     {/* Edit Button */}
@@ -452,7 +491,10 @@ export default function ProductsPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-gray-500 text-lg">
+                <td
+                  colSpan={5}
+                  className="px-6 py-10 text-center text-gray-500 text-lg"
+                >
                   No products found. Click 'Add Product' to begin.
                 </td>
               </tr>
